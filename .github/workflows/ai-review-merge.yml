@@ -218,20 +218,36 @@ jobs:
 
           # 代码车道：无论 AI 怎么说，都不自动合并
           if [ "$LANE" = "code" ]; then
-            if [ "$VERDICT" = "failed" ]; then
-              if ! gh pr review "$PR" -R "$GITHUB_REPOSITORY" --request-changes --body-file review.md 2>review.err; then
-                { echo "### ❌ AI 审查发现问题（代码车道）"; echo; cat review.md; } | gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body-file -
-              fi
-            else
-              dismiss_own_block
-              {
-                cat review.md
-                echo
-                echo "---"
-                echo "**代码车道：AI 审查通过。等测试绿之后，由维护者亲自合并。**"
-                if [ -n "$REASON" ]; then echo "（未走内容车道的原因：$REASON）"; fi
-              } | gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body-file -
-            fi
+            case "$VERDICT" in
+              passed)
+                dismiss_own_block
+                {
+                  cat review.md
+                  echo
+                  echo "---"
+                  echo "**代码车道：AI 审查通过。等测试绿之后，由维护者亲自合并。**"
+                  if [ -n "$REASON" ]; then echo "（未走内容车道的原因：$REASON）"; fi
+                } | gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body-file -
+                ;;
+
+              failed)
+                if ! gh pr review "$PR" -R "$GITHUB_REPOSITORY" --request-changes --body-file review.md 2>review.err; then
+                  { echo "### ❌ AI 审查发现问题（代码车道）"; echo; cat review.md; } | gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body-file -
+                fi
+                ;;
+
+              *)
+                {
+                  echo "### ℹ️ 代码车道：AI 审查未给出可用结论（\`$VERDICT\`）"
+                  echo
+                  echo "不会自动合并；请人工审查后自行决定是否合并。"
+                  echo
+                  echo '```'
+                  if [ -f review.md ]; then cat review.md; fi
+                  echo '```'
+                } | gh pr comment "$PR" -R "$GITHUB_REPOSITORY" --body-file -
+                ;;
+            esac
             exit 0
           fi
 
