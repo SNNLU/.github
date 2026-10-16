@@ -1,0 +1,17 @@
+name: AI Review & Auto-Merge
+
+# 组织级模板：调用 SNNLU/.github 里的复用工作流，本仓库只留这几行。
+# 改审查逻辑请改 SNNLU/.github/.github/workflows/ai-review-merge.yml（一处生效，所有仓库同步）。
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ai-review:
+    uses: SNNLU/.github/.github/workflows/ai-review-merge.yml@main
+    secrets: inherit
