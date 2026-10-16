@@ -1,15 +1,17 @@
 name: AI Review & Auto-Merge
 
-# 组织级模板：调用 SNNLU/.github 里的复用工作流，本仓库只留这几行。
-# 改审查逻辑请改 SNNLU/.github/.github/workflows/ai-review-merge.yml（一处生效，所有仓库同步）。
+# 审查与合并策略在组织级复用工作流里：SNNLU/.github/.github/workflows/ai-review-merge.yml
+# 本仓库只保留调用者。改策略请去那个仓库改（一处生效，所有仓库同步）。
+#
+# permissions 必须覆盖被调用工作流所需权限，否则会在启动阶段直接 startup_failure：
+#   复用工作流里"合并"需要 contents: write（只读会让 job 起不来）。
+permissions:
+  contents: write
+  pull-requests: write
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-
-permissions:
-  contents: read
-  pull-requests: write
 
 jobs:
   ai-review:
