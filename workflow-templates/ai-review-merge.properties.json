@@ -1,7 +1,0 @@
-{
-  "name": "AI Review & Auto-Merge",
-  "description": "调用组织级复用工作流：大模型审查 PR diff，通过则自动审批并开启 auto-merge。",
-  "iconName": "octicon check-circle",
-  "categories": ["Automation", "Code quality"],
-  "filePatterns": ["package.json$"]
-}
